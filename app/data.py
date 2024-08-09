@@ -1,5 +1,4 @@
-from os import getenv
-
+from os import getenv, makedirs, path
 import certifi
 from certifi import where
 from dotenv import load_dotenv
@@ -64,6 +63,17 @@ class Database:
             return None
         return df.to_html()
 
+    def to_csv(self, filepath: str):
+        """
+        Save the DataFrame to a CSV file.
+        :param filepath: Path to the CSV file.
+        """
+        directory = path.dirname(filepath)
+        if not path.exists(directory):
+            makedirs(directory)
+        df = self.dataframe()
+        df.to_csv(filepath, index=False)
+
     # Explanation Summary Notes:
     # The Database class is designed to interface with a MongoDB database securely.
     # - The `__init__` method establishes a connection using credentials from environment variables
@@ -77,6 +87,9 @@ class Database:
     # providing a convenient way to visualize the data,
     # returning None if the DataFrame is empty.
 
+
 if __name__ == "__main__":
     db = Database()
     db.seed(1000)
+    db.to_csv('data/monsters_data.csv')
+

@@ -10,7 +10,8 @@ def chart(df: DataFrame, x: str, y: str,  target: str) -> alt.Chart:
     This function generates a scatter plot using Altair with customizable features such as color scheme,
     interactivity, and theming to match the dark mode of the web application.
 
-    :param df: DataFrame containing the data to visualize. It must include columns corresponding to `x`, `y`, and `target`.
+    :param df: DataFrame containing the data to visualize.
+     It must include columns corresponding to `x`, `y`, and `target`.
     :param x: Name of the column to be used for the x-axis.
     :param y: Name of the column to be used for the y-axis.
     :param target: Name of the column to be used for color encoding.
@@ -48,7 +49,7 @@ def chart(df: DataFrame, x: str, y: str,  target: str) -> alt.Chart:
         # Configure the legend's label and title colors
         labelColor='white',
         titleColor='white'
-    ).interactive() # Enable interactivity (zoom and pan)
+    ).interactive()  # Enable interactivity (zoom and pan)
 
     return chart
 

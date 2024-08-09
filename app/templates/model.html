@@ -31,4 +31,20 @@
         Confidence: {{ confidence }}
     </h3>
 
+    <h2>Actions</h2>
+
+    <form action="{{ url_for('reset_db') }}" method="post" style="margin-bottom: 10px;">
+        <button type="submit">Reset & Reseed Database</button>
+    </form>
+
+    <form id="retrain-form" method="post" action="{{ url_for('retrain_model') }}">
+        <button type="submit">Retrain Model</button>
+    </form>
+
+    <p>
+        <a href="{{ url_for('download_model_v1') }}">Download Model</a>
+        <br>
+        <a href="{{ url_for('download_dataset') }}">Download Dataset</a>
+    </p>
+
 {% endblock %}
