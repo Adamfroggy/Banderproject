@@ -4,7 +4,14 @@ Read the Documentation for information on how to get started.
 
 [Deployed App](https://bandersnatch.herokuapp.com)
 
+# Project Documentation
 
+## Loom Videos
+
+- [Sprint 1: Detailed Explanation](https://www.loom.com/share/bd8df288a32d430c98c4d106a535bfa1?sid=7e1ec627-ce8f-4843-b447-896bcd4d17c6)
+- [Sprint 2: Detailed Explanation](https://www.loom.com/share/a89dfdae72dc454c81bae02e75fa0813?sid=ae08d99b-5236-4bbe-a759-782fbd670527)
+- [Sprint 3: Detailed Explanation](https://www.loom.com/share/987b1cbe298f4153a914011f07d24240?sid=d9e8cce8-c8f4-4043-a502-6e09c11f634a)
+- 
 ### Tech Stack
 - Logic: Python3
 - API Framework: Flask
