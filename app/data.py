@@ -1,13 +1,11 @@
 from os import getenv, makedirs, path
 import certifi
-from certifi import where
 from dotenv import load_dotenv
 from MonsterLab import Monster
 from pandas import DataFrame
 from pymongo import MongoClient
 
 load_dotenv()
-
 
 class Database:
     def __init__(self):
@@ -26,14 +24,21 @@ class Database:
         Insert a specified number of documents into the database collection.
         :param amount: Number of documents to insert.
         """
+        print(f"Seeding {amount} documents...")
         monsters = [Monster().to_dict() for _ in range(amount)]
         self.collection.insert_many(monsters)
+        print(f"Document count after seeding: {self.count()}")
 
     def reset(self):
         """
         Delete all documents from collection.
         """
+        print(f"Resetting collection...")
+        count_before = self.count()
         self.collection.delete_many({})
+        count_after = self.count()
+        print(f"Deleted {count_before} documents.")
+        print(f"Document count after reset: {count_after}")
 
     def count(self) -> int:
         """
@@ -74,6 +79,24 @@ class Database:
         df = self.dataframe()
         df.to_csv(filepath, index=False)
 
+
+    def check_collection_count(self):
+        """
+        Print the number of documents in the collection.
+        """
+        print(f"Document count in collection: {self.count()}")
+
+# Debugging in the __main__ block
+if __name__ == "__main__":
+    db = Database()
+    print(f"Document count before seeding: {db.count()}")  # Debug: Count before seeding
+    db.reset()
+    print(f"Document count after reset: {db.count()}")  # Debug: Count after reset
+    db.seed(1000)
+    print(f"Document count after seeding: {db.count()}")  # Debug: Count after seeding
+    db.to_csv('app/data/monsters_data.csv')
+    db.check_collection_count()  # Debug: Print final count
+
     # Explanation Summary Notes:
     # The Database class is designed to interface with a MongoDB database securely.
     # - The `__init__` method establishes a connection using credentials from environment variables
@@ -90,6 +113,9 @@ class Database:
 
 if __name__ == "__main__":
     db = Database()
+    db.reset()
     db.seed(1000)
-    db.to_csv('data/monsters_data.csv')
+    print(f"Document count after seeding: {db.count()}")
+    db.to_csv('app/data/monsters_data.csv')
+
 

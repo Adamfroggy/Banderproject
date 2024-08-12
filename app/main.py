@@ -68,25 +68,39 @@ def view():
 def model():
     if SPRINT < 3:
         return render_template("model.html")
+
     db = Database()
     options = ["Level", "Health", "Energy", "Sanity", "Rarity"]
     filepath = os.path.join("app", "model.joblib")
-    if not os.path.exists(filepath):
+
+    # Check and delete corrupted model file
+    if os.path.exists(filepath):
+        try:
+            machine = Machine.open(filepath)
+        except Exception as e:
+            print(f"Error loading model: {e}. Regenerating the model.")
+            os.remove(filepath)
+            df = db.dataframe()
+            machine = Machine(df[options])
+            machine.save(filepath)
+    else:
         df = db.dataframe()
         machine = Machine(df[options])
         machine.save(filepath)
-    else:
-        machine = Machine.open(filepath)
+
+    # Remaining code for prediction and rendering
     stats = [round(random.uniform(1, 250), 2) for _ in range(3)]
     level = request.values.get("level", type=int) or random.randint(1, 20)
     health = request.values.get("health", type=float) or stats.pop()
     energy = request.values.get("energy", type=float) or stats.pop()
     sanity = request.values.get("sanity", type=float) or stats.pop()
+
     prediction, confidence = machine(DataFrame(
         [dict(zip(options, (level, health, energy, sanity)))]
     ))
     confidence = confidence[0] if confidence else 0.0
     info = machine.info()
+
     return render_template(
         "model.html",
         info=info,
@@ -109,35 +123,40 @@ def reset_db():
 
 @APP.route('/retrain-model', methods=['POST'])
 def retrain_model():
-    df = load_your_data_function()
-    df = preprocess_data(df)
-    print("Columns in DataFrame after preprocessing:", df.columns)
-    print("Data types in DataFrame:", df.dtypes)
+    try:
+        df = load_your_data_function()
+        df = preprocess_data(df)
+        print("Columns in DataFrame after preprocessing:", df.columns)
+        print("Data types in DataFrame:", df.dtypes)
 
-    # Convert categorical columns to numeric
-    for col in ['Name', 'Type']:
-        if df[col].dtype == 'object' or df[col].dtype.name == 'category':
-            df[col] = df[col].astype('category').cat.codes
+        # Convert categorical columns to numeric
+        for col in ['Name', 'Type']:
+            if df[col].dtype == 'object' or df[col].dtype.name == 'category':
+                df[col] = df[col].astype('category').cat.codes
 
-    target_column_name = 'Rarity'
-    if target_column_name not in df.columns:
-        return jsonify({"error": f"Target column '{target_column_name}' missing in the data"}), 400
+        target_column_name = 'Rarity'
+        if target_column_name not in df.columns:
+            return jsonify({"error": f"Target column '{target_column_name}' missing in the data"}), 400
 
-    df[target_column_name] = pd.to_numeric(df[target_column_name], errors='coerce')
-    df[target_column_name] = df[target_column_name].fillna(0)
+        df[target_column_name] = pd.to_numeric(df[target_column_name], errors='coerce')
+        df[target_column_name] = df[target_column_name].fillna(0)
 
-    X = df.drop(target_column_name, axis=1)
-    y = df[target_column_name]
+        X = df.drop(target_column_name, axis=1)
+        y = df[target_column_name]
 
-    # Convert data to DMatrix format
-    dtrain = xgb.DMatrix(X, label=y)
+        # Convert data to DMatrix format
+        dtrain = xgb.DMatrix(X, label=y)
 
-    params = {'objective': 'reg:squarederror', 'eval_metric': 'rmse'}
-    model = xgb.train(params, dtrain, num_boost_round=10)
-    model.save_model('app/model.joblib')
+        params = {'objective': 'reg:squarederror', 'eval_metric': 'rmse'}
+        model = xgb.train(params, dtrain, num_boost_round=10)
 
-    return jsonify({"message": "Model re-trained and saved successfully."})
+        # Save the model with XGBoost's method
+        model.save_model('app/model.xgb')
 
+        return jsonify({"message": "Model re-trained and saved successfully."})
+
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
 
 @APP.route('/download-model', methods=['GET'], endpoint='download_model_v1')
 def download_model():

@@ -4,7 +4,7 @@ import re
 
 
 def load_your_data_function():
-    data = pd.read_csv('data/monsters_data.csv')
+    data = pd.read_csv('app/data/monsters_data.csv')
     return data
 
 

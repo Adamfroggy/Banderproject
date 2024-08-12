@@ -150,3 +150,4 @@ class Machine:
             A string containing the model's name and initialization timestamp.
         """
         return f"Model Name: {self.name}, Initialized At: {self.timestamp}"
+
